@@ -1,0 +1,5 @@
+function Execicio2() {
+}
+Execicio2.prototype.exec = function (n1,n2, n3, n4) {
+    return (n1+n2+n3+n4)/4;
+};

@@ -1,0 +1,1 @@
+angular.module("newInovaVitrine", ["ngMessages"]);
