@@ -6,10 +6,7 @@ import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.ResponseSpecification;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.util.Map;
@@ -22,13 +19,13 @@ import static org.junit.Assert.*;
 
 public class RestAssuredSampleApiTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         Main.startServer();
     }
 
-    @After
-    public void finilize() throws Exception {
+    @AfterClass
+    public static void finilize() throws Exception {
         Main.stoptServer();
     }
 
