@@ -6,15 +6,17 @@ import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.ResponseSpecification;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasXPath;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class RestAssuredSampleApiTest {
@@ -31,64 +33,79 @@ public class RestAssuredSampleApiTest {
 
     @Test
     public void should_get_in_goggle() {
-
         get("http://www.google.com.br")
                 .then()
                 .assertThat()
                 .statusCode(200)
                 .body(containsString("Pesquisa Google"));
+
+        //or
+
+        expect()
+                .statusCode(200)
+                .body(containsString("Pesquisa Google"))
+                .when()
+                .get("http://www.google.com.br");
+
+        //or
+
+        Response res = get("http://www.google.com.br");
+        assertEquals(200, res.getStatusCode());
+        String page = res.asString();
+        assertTrue(page.contains("Pesquisa Google"));
     }
 
 
     @Test
-    public void should_get_in_local_index() {
-
+    public void testGetIndex() {
         get("/index.html")
                 .then()
                 .assertThat()
-                .statusCode(200);
+                .statusCode(200)
+                .body(containsString("New Inova Vitrine"));
     }
 
     @Test
-    public void testGetSingleUser() {
-        expect().statusCode(200)
-                .body("email", equalTo("test@hascode.com"), "firstName",
-                        equalTo("Tim"), "lastName", equalTo("Testerman"), "id",
-                        equalTo("1")).when().get("/rest/service/single-user");
-    }
-
-    @Test
-    public void testGetSingleUserProgrammatic() {
-        Response res = get("/rest/service/single-user");
-        assertEquals(200, res.getStatusCode());
-        String json = res.asString();
-        JsonPath jp = new JsonPath(json);
-        assertEquals("test@hascode.com", jp.get("email"));
-        assertEquals("Tim", jp.get("firstName"));
-        assertEquals("Testerman", jp.get("lastName"));
-        assertEquals("1", jp.get("id"));
+    public void testGetSingleUserAsJson() {
+        get("/rest/service/single-user")
+                .then()
+                .statusCode(200)
+                .body(
+                        "email", equalTo("test@hascode.com"),
+                        "firstName", equalTo("Tim"),
+                        "lastName", equalTo("Testerman"),
+                        "id", equalTo("1"));
     }
 
     @Test
     public void testGetSingleUserAsXml() {
-        expect().statusCode(200)
-                .body("user.email", equalTo("test@hascode.com"),
-                        "user.firstName", equalTo("Tim"), "user.lastName",
-                        equalTo("Testerman"), "user.id", equalTo("1")).when()
-                .get("/rest/service/single-user/xml");
+        get("/rest/service/single-user/xml")
+                .then()
+                .statusCode(200)
+                .body(
+                        "user.email", equalTo("test@hascode.com"),
+                        "user.firstName", equalTo("Tim"),
+                        "user.lastName", equalTo("Testerman"),
+                        "user.id", equalTo("1"));
     }
 
     @Test
-    public void testGetPersons() {
-        expect().statusCode(200)
-                .body(hasXPath("//*[self::person and self::person[@id='1'] and self::person/email[text()='test@hascode.com'] and self::person/firstName[text()='Tim'] and self::person/lastName[text()='Testerman']]"))
-                .body(hasXPath("//*[self::person and self::person[@id='20'] and self::person/email[text()='dev@hascode.com'] and self::person/firstName[text()='Sara'] and self::person/lastName[text()='Stevens']]"))
-                .body(hasXPath("//*[self::person and self::person[@id='11'] and self::person/email[text()='devnull@hascode.com'] and self::person/firstName[text()='Mark'] and self::person/lastName[text()='Mustache']]"))
-                .when().get("/rest/service/persons/xml");
+    public void testGetPersonsAsJson() {
+//        [
+//          {"foo":1, "bar":2 , "baz":3 },
+//          {"foo":3, "bar":4 , "baz":5 }
+//        ]
+
+//        expect().body("bar",hasItems(2,4))  Order is not important
+
+        get("/rest/service/persons/json")
+                .then()
+                .statusCode(200)
+                .body("person.email", hasItems("dev@hascode.com", "test@hascode.com", "devnull@hascode.com"));
     }
 
     @Test
-    public void testFindUsingGroovyClosure() {
+    public void testGetPersonsAsXmlUsingGroovyClosure() {
         String json = get("/rest/service/persons/json").asString();
         JsonPath jp = new JsonPath(json);
         jp.setRoot("person");
@@ -96,7 +113,16 @@ public class RestAssuredSampleApiTest {
         assertEquals("test@hascode.com", person.get("email"));
         assertEquals("Tim", person.get("firstName"));
         assertEquals("Testerman", person.get("lastName"));
+    }
 
+    @Test
+    public void testGetPersonsAsXmlUsingXPath() {
+        get("/rest/service/persons/xml")
+                .then()
+                .statusCode(200)
+                .body(hasXPath("//*[self::person and self::person[@id='1'] and self::person/email[text()='test@hascode.com'] and self::person/firstName[text()='Tim'] and self::person/lastName[text()='Testerman']]"))
+                .body(hasXPath("//*[self::person and self::person[@id='20'] and self::person/email[text()='dev@hascode.com'] and self::person/firstName[text()='Sara'] and self::person/lastName[text()='Stevens']]"))
+                .body(hasXPath("//*[self::person and self::person[@id='11'] and self::person/email[text()='devnull@hascode.com'] and self::person/firstName[text()='Mark'] and self::person/lastName[text()='Mustache']]"));
     }
 
     @Test
