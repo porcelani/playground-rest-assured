@@ -57,7 +57,7 @@ public class RestAssuredSampleApiTest {
 
 
     @Test
-    public void testGetIndex() {
+    public void should_get_index() {
         get("/index.html")
                 .then()
                 .assertThat()
@@ -66,7 +66,7 @@ public class RestAssuredSampleApiTest {
     }
 
     @Test
-    public void testGetSingleUserAsJson() {
+    public void should_get_single_user_as_json() {
         get("/rest/service/single-user")
                 .then()
                 .statusCode(200)
@@ -78,7 +78,7 @@ public class RestAssuredSampleApiTest {
     }
 
     @Test
-    public void testGetSingleUserAsXml() {
+    public void should_get_single_user_as_xml() {
         get("/rest/service/single-user/xml")
                 .then()
                 .statusCode(200)
@@ -90,7 +90,7 @@ public class RestAssuredSampleApiTest {
     }
 
     @Test
-    public void testGetPersonsAsJson() {
+    public void should_get_persons_as_json() {
 //        [
 //          {"foo":1, "bar":2 , "baz":3 },
 //          {"foo":3, "bar":4 , "baz":5 }
@@ -105,7 +105,7 @@ public class RestAssuredSampleApiTest {
     }
 
     @Test
-    public void testGetPersonsAsXmlUsingGroovyClosure() {
+    public void should_get_persons_as_xml_using_groovy_closure() {
         String json = get("/rest/service/persons/json").asString();
         JsonPath jp = new JsonPath(json);
         jp.setRoot("person");
@@ -116,7 +116,7 @@ public class RestAssuredSampleApiTest {
     }
 
     @Test
-    public void testGetPersonsAsXmlUsingXPath() {
+    public void should_get_persons_as_xml_using_xpath() {
         get("/rest/service/persons/xml")
                 .then()
                 .statusCode(200)
@@ -126,26 +126,31 @@ public class RestAssuredSampleApiTest {
     }
 
     @Test
-    public void testCreateuser() {
+    public void should_create_user() {
         final String email = "test@hascode.com";
         final String firstName = "Tim";
         final String lastName = "Tester";
 
-        given().parameters("email", email, "firstName", firstName, "lastName",
-                lastName).expect().body("email", equalTo(email))
+        given()
+                .parameters("email", email, "firstName", firstName, "lastName", lastName)
+        .expect()
+                .body("email", equalTo(email))
                 .body("firstName", equalTo(firstName))
-                .body("lastName", equalTo(lastName)).when()
+                .body("lastName", equalTo(lastName))
+        .when()
                 .get("/rest/service/user/create");
     }
 
     @Test
-    public void testStatusNotFound() {
-        expect().statusCode(404).when().get("/rest/service/status/notfound");
+    public void should_status_not_found() {
+        expect()
+                .statusCode(404)
+        .when().get("/rest/service/status/notfound");
     }
 
-    @Ignore
+    @Ignore //TODO
     @Test
-    public void testAuthenticationWorking() {
+    public void should_authentication() {
         // we're not authenticated, service returns "401 Unauthorized"
         expect().statusCode(401).when().get("/rest/service/secure/person");
 
